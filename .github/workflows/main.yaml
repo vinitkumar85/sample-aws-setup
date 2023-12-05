@@ -5,22 +5,16 @@ on:
     branches:
       - main
 
-defaults:
-  run:
-    working-directory: app
-
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@main
-      - run: npm install
-
-      - uses: shinyinc/action-aws-cli@v1.2
-      - run: aws s3 sync build s3://${{secrets.AWS_S3_BUCKET_NAME}}/app
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          AWS_DEFAULT_REGION: "us-east-1"
+    - uses: actions/checkout@main
+    - uses: jakejarvis/s3-sync-action@main
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: "us-east-1"
